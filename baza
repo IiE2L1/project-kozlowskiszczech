@@ -1,0 +1,88 @@
+-- Table: public.dates
+
+-- DROP TABLE public.dates;
+
+CREATE TABLE public.dates
+(
+  m_id integer,
+  w_id integer,
+  CONSTRAINT m_fk FOREIGN KEY (m_id)
+      REFERENCES public.man (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT w_fk FOREIGN KEY (w_id)
+      REFERENCES public.woman (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.dates
+  OWNER TO postgres;
+
+______________
+
+
+-- Table: public.man
+
+-- DROP TABLE public.man;
+
+CREATE TABLE public.man
+(
+  id integer NOT NULL DEFAULT nextval('man_id_seq'::regclass),
+  name character(20),
+  surname character(20),
+  age integer,
+  CONSTRAINT man_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.man
+  OWNER TO postgres;
+
+
+_________________
+
+
+-- Table: public.woman
+
+-- DROP TABLE public.woman;
+
+CREATE TABLE public.woman
+(
+  id integer NOT NULL DEFAULT nextval('woman_id_seq'::regclass),
+  name character(20),
+  surname character(20),
+  age integer,
+  CONSTRAINT woman_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.woman
+  OWNER TO postgres;
+
+___________
+
+-- Function: public.insertman(character)
+
+-- DROP FUNCTION public.insertman(character);
+
+CREATE OR REPLACE FUNCTION public.insertman(name character)
+  RETURNS integer AS
+$BODY$
+
+	DECLARE
+	vn_id integer;
+        BEGIN
+                SELECT count(*) INTO vn_id FROM man;
+		vn_id = vn_id+1;
+                INSERT INTO man (id, name) VALUES (vn_id, name);
+        RETURN vn_id;
+                
+END
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.insertman(character)
+  OWNER TO postgres;
